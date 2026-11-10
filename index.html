@@ -151,19 +151,36 @@
   </div>
 
   <script>
-    function crearClips() {
+  async function crearClips() {
 
-      const url = document.getElementById("youtubeUrl").value;
-      const mensaje = document.getElementById("mensaje");
+  const url = document.getElementById("youtubeUrl").value;
+  const mensaje = document.getElementById("mensaje");
 
-      if (url.trim() === "") {
-        alert("Pega primero un enlace de YouTube.");
-        return;
-      }
+  if (url.trim() === "") {
+    alert("Pega primero un enlace de YouTube.");
+    return;
+  }
 
-      mensaje.style.display = "block";
-      mensaje.innerHTML = "🔎 Enlace recibido. Próximamente analizaremos el video...";
-    }
+  mensaje.style.display = "block";
+  mensaje.innerHTML = "🔄 Conectando con Clip Ángel...";
+
+  try {
+    const respuesta = await fetch("https://clip-angel-api.onrender.com/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ url: url })
+    });
+
+    const resultado = await respuesta.json();
+
+    mensaje.innerHTML = resultado.message || resultado.error || "Respuesta recibida.";
+
+  } catch (error) {
+    mensaje.innerHTML = "❌ No se pudo conectar con el servidor.";
+  }
+}
   </script>
 
 </body>
