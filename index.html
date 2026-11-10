@@ -184,7 +184,7 @@
     mensaje.innerHTML = "❌ No se pudo conectar con el servidor.";
   }
 }
-    async function subirVideo() {
+   async function subirVideo() {
   const archivo = document.getElementById("videoFile").files[0];
   const mensaje = document.getElementById("uploadMensaje");
 
@@ -208,9 +208,38 @@
     );
 
     const resultado = await respuesta.json();
-    mensaje.innerHTML = resultado.message || resultado.error;
+
+    if (resultado.error) {
+      mensaje.innerHTML = resultado.error;
+      return;
+    }
+
+    mensaje.innerHTML = "Video subido. Creando clips...";
+
+    const crear = await fetch(
+      "https://clip-angel-api.onrender.com/create-clips",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          filename: resultado.filename
+        })
+      }
+    );
+
+    const clips = await crear.json();
+
+    if (clips.error) {
+      mensaje.innerHTML = clips.error;
+      return;
+    }
+
+    mensaje.innerHTML = "Clips creados correctamente.";
+
   } catch (error) {
-    mensaje.innerHTML = "No se pudo subir el video.";
+    mensaje.innerHTML = "No se pudo completar el proceso.";
   }
 }
     async function mostrarClips() {
