@@ -62,3 +62,46 @@ async def upload_video(file: UploadFile = File(...)):
         "message": "Video recibido correctamente",
         "filename": filename
     }
+import subprocess
+
+os.makedirs("clips", exist_ok=True)
+
+class ClipRequest(BaseModel):
+    filename: str
+
+@app.post("/create-clips")
+def create_clips(data: ClipRequest):
+    filename = os.path.basename(data.filename)
+    video_path = os.path.join("videos", filename)
+
+    if not os.path.exists(video_path):
+        return {"error": "No se encontró el video"}
+
+    output_pattern = os.path.join(
+        "clips",
+        os.path.splitext(filename)[0] + "_%03d.mp4"
+    )
+
+    comando = [
+        "ffmpeg", "-i", video_path,
+        "-vf",
+        "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
+        "-c:v", "libx264",
+        "-preset", "veryfast",
+        "-c:a", "aac",
+        "-f", "segment",
+        "-segment_time", "45",
+        "-reset_timestamps", "1",
+        output_pattern
+    ]
+
+    resultado = subprocess.run(
+        comando,
+        capture_output=True,
+        text=True
+    )
+
+    if resultado.returncode != 0:
+        return {"error": "No se pudieron crear los clips"}
+
+    return {"message": "Clips creados correctamente"}
