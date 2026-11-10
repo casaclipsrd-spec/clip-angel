@@ -127,3 +127,18 @@ def create_clips(data: ClipRequest):
         "message": "Clips creados correctamente",
         "clips": clips_creados
     }
+from fastapi.responses import FileResponse
+
+@app.get("/download/{filename}")
+def download_clip(filename: str):
+    filename = os.path.basename(filename)
+    path = os.path.join("clips", filename)
+
+    if not os.path.exists(path):
+        return {"error": "Clip no encontrado"}
+
+    return FileResponse(
+        path,
+        media_type="video/mp4",
+        filename=filename
+    )
