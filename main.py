@@ -142,3 +142,15 @@ def download_clip(filename: str):
         media_type="video/mp4",
         filename=filename
     )
+@app.get("/clips")
+def listar_clips():
+    os.makedirs("clips", exist_ok=True)
+
+    archivos = [
+        nombre for nombre in os.listdir("clips")
+        if nombre.endswith(".mp4")
+    ]
+
+    return {
+        "clips": archivos
+    }
