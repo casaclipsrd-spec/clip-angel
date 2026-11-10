@@ -77,31 +77,53 @@ def create_clips(data: ClipRequest):
     if not os.path.exists(video_path):
         return {"error": "No se encontró el video"}
 
+    os.makedirs("clips", exist_ok=True)
+
     output_pattern = os.path.join(
         "clips",
         os.path.splitext(filename)[0] + "_%03d.mp4"
     )
 
     comando = [
-        "ffmpeg", "-i", video_path,
+        "ffmpeg",
+        "-y",
+        "-i", video_path,
         "-vf",
-        "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
+        "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280",
         "-c:v", "libx264",
-        "-preset", "veryfast",
+        "-preset", "ultrafast",
+        "-crf", "28",
         "-c:a", "aac",
+        "-b:a", "96k",
         "-f", "segment",
         "-segment_time", "45",
         "-reset_timestamps", "1",
         output_pattern
     ]
 
-    resultado = subprocess.run(
-        comando,
-        capture_output=True,
-        text=True
-    )
+    try:
+        resultado = subprocess.run(
+            comando,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+    except subprocess.TimeoutExpired:
+        return {"error": "El procesamiento tardó demasiado"}
 
     if resultado.returncode != 0:
-        return {"error": "No se pudieron crear los clips"}
+        return {
+            "error": "No se pudieron crear los clips",
+            "detalle": resultado.stderr[-1500:]
+        }
 
-    return {"message": "Clips creados correctamente"}
+    clips_creados = [
+        nombre for nombre in os.listdir("clips")
+        if nombre.startswith(os.path.splitext(filename)[0] + "_")
+        and nombre.endswith(".mp4")
+    ]
+
+    return {
+        "message": "Clips creados correctamente",
+        "clips": clips_creados
+    }
