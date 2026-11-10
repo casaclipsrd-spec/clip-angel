@@ -213,7 +213,30 @@
     mensaje.innerHTML = "No se pudo subir el video.";
   }
 }
+    async function mostrarClips() {
+  const respuesta = await fetch(
+    "https://clip-angel-api.onrender.com/clips"
+  );
+
+  const datos = await respuesta.json();
+  const lista = document.getElementById("listaClips");
+
+  lista.innerHTML = "";
+
+  datos.clips.forEach(nombre => {
+    const enlace = document.createElement("a");
+    enlace.href = "https://clip-angel-api.onrender.com/download/" + encodeURIComponent(nombre);
+    enlace.textContent = "Descargar " + nombre;
+    enlace.download = nombre;
+    enlace.style.display = "block";
+    lista.appendChild(enlace);
+  });
+}
   </script>
 
-</body>
+</body> <h2>MIS CLIPS</h2>
+
+<button onclick="mostrarClips()">VER MIS CLIPS</button>
+
+<div id="listaClips"></div>
 </html>
