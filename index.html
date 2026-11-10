@@ -187,6 +187,35 @@
     mensaje.innerHTML = "❌ No se pudo conectar con el servidor.";
   }
 }
+    async function subirVideo() {
+  const archivo = document.getElementById("videoFile").files[0];
+  const mensaje = document.getElementById("uploadMensaje");
+
+  if (!archivo) {
+    alert("Selecciona primero un video.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", archivo);
+
+  mensaje.innerHTML = "Subiendo video...";
+
+  try {
+    const respuesta = await fetch(
+      "https://clip-angel-api.onrender.com/upload",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    const resultado = await respuesta.json();
+    mensaje.innerHTML = resultado.message || resultado.error;
+  } catch (error) {
+    mensaje.innerHTML = "No se pudo subir el video.";
+  }
+}
   </script>
 
 </body>
