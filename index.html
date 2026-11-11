@@ -242,25 +242,41 @@
     mensaje.innerHTML = "No se pudo completar el proceso.";
   }
 }
-    async function mostrarClips() {
-  const respuesta = await fetch(
-    "http://127.0.0.1:8000/clips"
-  );
-
-  const datos = await respuesta.json();
+   async function mostrarClips() {
   const lista = document.getElementById("listaClips");
 
-  lista.innerHTML = "";
-lista.dataset.ultimoVideo = "";
-  datos.clips.forEach(nombre => {
-    lista.dataset.ultimoVideo = nombre;
+  lista.innerHTML = "Cargando clips...";
+
+  try {
+    const respuesta = await fetch(
+      "http://127.0.0.1:8000/clips?t=" + Date.now()
+    );
+
+    const datos = await respuesta.json();
+
+    lista.innerHTML = "";
+
+    if (!datos.clips || datos.clips.length === 0) {
+      lista.textContent = "Todavía no hay clips.";
+      return;
+    }
+
+    const nombre = datos.clips[0];
+
     const enlace = document.createElement("a");
-    enlace.href = "http://127.0.0.1:8000/download/" + encodeURIComponent(nombre);
-    enlace.textContent = "Descargar " + nombre;
+    enlace.href =
+      "http://127.0.0.1:8000/download/" +
+      encodeURIComponent(nombre);
+
+    enlace.textContent = "Descargar último clip";
     enlace.download = nombre;
     enlace.style.display = "block";
+
     lista.appendChild(enlace);
-  });
+
+  } catch (error) {
+    lista.textContent = "No se pudieron cargar los clips.";
+  }
 }
   </script>
 
