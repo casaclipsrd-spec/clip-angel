@@ -251,7 +251,7 @@
   const lista = document.getElementById("listaClips");
 
   lista.innerHTML = "";
-
+lista.dataset.ultimoVideo = "";
   datos.clips.forEach(nombre => {
     const enlace = document.createElement("a");
     enlace.href = "http://127.0.0.1:8000/download/" + encodeURIComponent(nombre);
