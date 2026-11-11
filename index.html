@@ -161,18 +161,24 @@
 
 <div id="listaClips"></div>
   <script>
-  async function crearClips() {
 
-  const url = document.getElementById("youtubeUrl").value;
+async function crearClips() {
+  const url = document.getElementById("youtubeUrl").value.trim();
   const mensaje = document.getElementById("mensaje");
+  const autorizado = document.getElementById("authorizedVideo").checked;
 
-  if (url.trim() === "") {
+  if (!url) {
     alert("Pega primero un enlace de YouTube.");
     return;
   }
 
+  if (!autorizado) {
+    alert("Confirma que tienes autorización para utilizar este video.");
+    return;
+  }
+
   mensaje.style.display = "block";
-  mensaje.innerHTML = "🔄 Conectando con Clip Ángel...";
+  mensaje.innerHTML = "Descargando video de YouTube...";
 
   try {
     const respuesta = await fetch("http://127.0.0.1:8000/analyze", {
@@ -180,16 +186,46 @@
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ url: url })
+      body: JSON.stringify({
+        url: url,
+        authorized: true
+      })
     });
 
     const resultado = await respuesta.json();
 
-    mensaje.innerHTML = resultado.message || resultado.error || "Respuesta recibida.";
+    if (resultado.error) {
+      mensaje.innerHTML = resultado.error;
+      return;
+    }
+
+    mensaje.innerHTML = "Video descargado. Creando clips...";
+
+    const crear = await fetch("http://127.0.0.1:8000/create-clips", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        filename: resultado.filename
+      })
+    });
+
+    const clips = await crear.json();
+
+    if (clips.error) {
+      mensaje.innerHTML = clips.error;
+      return;
+    }
+
+    mensaje.innerHTML = "¡Clips creados correctamente!";
+    mostrarClips();
 
   } catch (error) {
-    mensaje.innerHTML = "❌ No se pudo conectar con el servidor.";
+    mensaje.innerHTML = "No se pudo completar el proceso.";
   }
+}
+
 }
    async function subirVideo() {
   const archivo = document.getElementById("videoFile").files[0];
