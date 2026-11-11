@@ -89,7 +89,7 @@ def create_clips(data: ClipRequest):
         "-y",
         "-i", video_path,
         "-vf",
-        "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280",
+        "scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2",
         "-c:v", "libx264",
         "-preset", "ultrafast",
         "-crf", "28",
