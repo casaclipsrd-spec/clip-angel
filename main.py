@@ -91,6 +91,7 @@ def create_clips(data: ClipRequest):
         "-vf",
         "scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280",
         "-c:v", "libx264",
+"-threads", "2",
         "-preset", "ultrafast",
         "-crf", "28",
         "-c:a", "aac",
