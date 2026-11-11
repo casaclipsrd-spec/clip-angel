@@ -253,6 +253,7 @@
   lista.innerHTML = "";
 lista.dataset.ultimoVideo = "";
   datos.clips.forEach(nombre => {
+    lista.dataset.ultimoVideo = nombre;
     const enlace = document.createElement("a");
     enlace.href = "http://127.0.0.1:8000/download/" + encodeURIComponent(nombre);
     enlace.textContent = "Descargar " + nombre;
